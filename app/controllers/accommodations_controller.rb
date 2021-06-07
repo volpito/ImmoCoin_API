@@ -1,6 +1,8 @@
 class AccommodationsController < ApplicationController
   before_action :set_accommodation, only: [:show, :update, :destroy]
 
+  before_action :authenticate_user!, except: [:show, :index]
+
   # GET /accommodations
   def index
     @accommodations = Accommodation.all
@@ -16,6 +18,7 @@ class AccommodationsController < ApplicationController
   # POST /accommodations
   def create
     @accommodation = Accommodation.new(accommodation_params)
+    @accommodation.user_id = current_user.id if current_user
 
     if @accommodation.save
       render json: @accommodation, status: :created, location: @accommodation
@@ -26,16 +29,20 @@ class AccommodationsController < ApplicationController
 
   # PATCH/PUT /accommodations/1
   def update
-    if @accommodation.update(accommodation_params)
-      render json: @accommodation
-    else
-      render json: @accommodation.errors, status: :unprocessable_entity
+    if @accommodation.user_id == current_user.id
+      if @accommodation.update(accommodation_params)
+        render json: @accommodation
+      else
+        render json: @accommodation.errors, status: :unprocessable_entity
+      end
     end
   end
 
   # DELETE /accommodations/1
   def destroy
-    @accommodation.destroy
+    if @accommodation.user_id == current_user.id
+      @accommodation.destroy
+    end
   end
 
   private
