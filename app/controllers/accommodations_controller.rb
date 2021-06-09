@@ -19,6 +19,7 @@ class AccommodationsController < ApplicationController
   def create
     @accommodation = Accommodation.new(accommodation_params)
     @accommodation.user_id = current_user.id if current_user
+    @accommodation.user_email = current_user.email if current_user
 
     if @accommodation.save
       render json: @accommodation, status: :created, location: @accommodation
@@ -53,6 +54,6 @@ class AccommodationsController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def accommodation_params
-      params.require(:accommodation).permit(:title, :price, :description)
+      params.require(:accommodation).permit(:title, :price, :description, :user_email)
     end
 end
